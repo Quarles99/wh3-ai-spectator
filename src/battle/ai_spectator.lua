@@ -1,11 +1,37 @@
--- Game-facing entry point. STUB: every game API call below is UNVERIFIED.
--- Verify against lib_battle_script_ai_planner.lua before use.
+-- Game-facing entry point. NOT YET RUN IN GAME.
+--
+-- Packaging: ship this file in the mod pack as  script/battle/mod/ai_spectator.lua
+-- The game's mod loader (lib_mod_loader.lua / core:load_mods) loads every *.lua in
+-- /script/battle/mod/ at battle script startup. Do not override battle_start.lua.
+--
+-- API status. "pack" = read in the game's own scripts (data_script.pack, WH3 as
+-- installed 2026-10-10); "untested" = never executed by us.
+--   bm                                          pack, global battle_manager
+--   bm:register_phase_change_callback(name, f)  pack; phases: Deployment, Deployed,
+--                                               VictoryCountdown, Complete
+--   bm:get_scriptunits_for_army(alliance, army) pack; 1-based ids, alliance is 1 or 2;
+--                                               returns script_units or false
+--   bm:num_reinforcing_armies_for_army_in_alliance(a, army)   pack
+--   bm:callback(fn, ms, name)                   pack; timer synced to battle model
+--   script_ai_planner:new(name, sunits)         pack; one planner per alliance (all
+--                                               units must share an alliance)
+--   planner:attack_unit / rush_unit / move_to_position / defend_position /
+--     attack_force / move_to_force / patrol / release                       pack
+--
+-- Open questions (need an in-game test):
+--   * Is every symbol above available at the moment the mod loader runs this file?
+--   * Do custom and multiplayer battles run battle scripts on every client?
+--   * Does the planner take units away from a human player cleanly?
+--   * bm:callback docs say "interval in seconds" but the parameter is documented as
+--     milliseconds and the planner code passes 400 / 30000. Treat as ms, confirm.
 --
 -- Intended flow:
---   1. On battle start, for each alliance create an AI unit planner.
---   2. Every N battle-time ticks: assess (src/ai/assess.lua), pick stance,
---      issue planner orders, record decision via decision_log.
---   3. Never branch on local-client state.
+--   1. On the "Deployed" phase, for alliance 1 and 2 collect script_units for every
+--      army (including reinforcements) and create one script_ai_planner per alliance.
+--      Note planner:add_sunits applies units via a 400 ms callback.
+--   2. Every N ms of battle time: assess (src/ai/assess.lua), pick a stance, issue
+--      planner orders, record the decision via decision_log.
+--   3. Never branch on local-client state: bm:local_alliance(), bm:local_army(),
+--      bm:get_player_*() and any UI state are per client.
 --
--- TODO(phase 0): confirm how a mod pack registers a battle script and how to
--- obtain alliances/armies/script_units.
+-- TODO(phase 1): write the code above once the questions are answered in game.
