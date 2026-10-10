@@ -1,0 +1,11 @@
+-- Game-facing entry point. STUB: every game API call below is UNVERIFIED.
+-- Verify against lib_battle_script_ai_planner.lua before use.
+--
+-- Intended flow:
+--   1. On battle start, for each alliance create an AI unit planner.
+--   2. Every N battle-time ticks: assess (src/ai/assess.lua), pick stance,
+--      issue planner orders, record decision via decision_log.
+--   3. Never branch on local-client state.
+--
+-- TODO(phase 0): confirm how a mod pack registers a battle script and how to
+-- obtain alliances/armies/script_units.
